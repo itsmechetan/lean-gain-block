@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Lean Gain Block</title>
+<style>:root{--bg:#F3F5F4;--card:#fff;--ink:#151A1D;--muted:#6A767D;--line:#E2E7E5;--accent:#C8323C}@media (prefers-color-scheme:dark){:root{--bg:#0F1214;--card:#161B1E;--ink:#E7ECEA;--muted:#8F9CA2;--line:#242C31;--accent:#F0545E;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:16px}
+form{width:100%;max-width:360px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px;display:grid;gap:14px;box-shadow:0 10px 30px -12px rgba(0,0,0,.15)}
+h1{margin:0;font-size:22px;letter-spacing:-.01em}h1 span{color:var(--accent)}p{margin:0;color:var(--muted);font-size:13px}
+input[type=password]{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:inherit}
+input[type=password]:focus{outline:2px solid var(--accent);outline-offset:1px}
+label{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+button{border:0;border-radius:10px;padding:11px;background:var(--ink);color:var(--bg);font:600 14px system-ui;cursor:pointer}button:disabled{opacity:.5}
+.err{color:var(--accent);min-height:18px;font-size:13px}</style></head><body>
+<form id="f"><h1>Lean Gain <span>Block</span></h1><p>Private dashboard. Enter the password to open it.</p>
+<input type="password" id="pw" autocomplete="current-password" placeholder="Password" aria-label="Password" autofocus>
+<label><input type="checkbox" id="rem" checked> Remember on this device</label>
+<button id="go" type="submit">Open</button><div class="err" id="err" role="alert"></div></form>
+<script>
+const D={s:"ztFCMSbzt0MPOkYtegPBqw==",i:"9ooh5uVTjL3mjKLb",n:6};
+const ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function open(pw,remember){const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+ const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:ub(D.s),iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+ const bufs=await Promise.all(Array.from({length:D.n},(_,i)=>fetch("p"+i+".bin",{cache:"no-cache"}).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})));const ct=new Blob(bufs);const gz=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub(D.i)},key,await ct.arrayBuffer());const html=await new Response(new Blob([gz]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+ try{if(remember)localStorage.setItem("lgb_pw",pw);}catch(e){}
+ document.open();document.write(html);document.close();}
+document.getElementById("f").addEventListener("submit",async e=>{e.preventDefault();const b=document.getElementById("go"),er=document.getElementById("err");b.disabled=true;er.textContent="";
+ try{await open(document.getElementById("pw").value,document.getElementById("rem").checked)}catch(x){er.textContent="That password didn't work.";b.disabled=false}});
+try{const s=localStorage.getItem("lgb_pw");if(s)open(s,true).catch(()=>{try{localStorage.removeItem("lgb_pw")}catch(e){}})}catch(e){}
+</script></body></html>
